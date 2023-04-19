@@ -5,10 +5,7 @@ use smol_str::SmolStr;
 #[test]
 #[cfg(target_pointer_width = "64")]
 fn smol_str_is_smol() {
-    assert_eq!(
-        ::std::mem::size_of::<SmolStr>(),
-        ::std::mem::size_of::<String>(),
-    );
+    assert_eq!(::std::mem::size_of::<SmolStr>(), ::std::mem::size_of::<String>(),);
 }
 
 #[test]
@@ -167,8 +164,7 @@ mod serde_tests {
         let mut map = HashMap::new();
         map.insert(SmolStr::new("a"), SmolStr::new("ohno"));
         let s = serde_json::to_string(&map).unwrap();
-        let _s: HashMap<SmolStr, SmolStr> =
-            serde_json::from_reader(std::io::Cursor::new(s)).unwrap();
+        let _s: HashMap<SmolStr, SmolStr> = serde_json::from_reader(std::io::Cursor::new(s)).unwrap();
     }
 
     #[test]
@@ -251,4 +247,16 @@ fn test_bad_size_hint_char_iter() {
     assert!(collected.is_heap_allocated());
     assert!(!new.is_heap_allocated());
     assert_eq!(new, collected);
+}
+
+#[test]
+fn test_to_smolstr() {
+    use smol_str::ToSmolStr;
+
+    for i in 0..26 {
+        let a = &"abcdefghijklmnopqrstuvwxyz"[i..];
+
+        assert_eq!(a, a.to_smolstr());
+        assert_eq!(a, smol_str::format_smolstr!("{}", a));
+    }
 }
