@@ -12,7 +12,6 @@ use alloc::{
     borrow::Cow,
     boxed::Box,
     string::{String, ToString},
-    sync::Arc,
 };
 use core::{
     borrow::Borrow,
@@ -23,6 +22,7 @@ use core::{
     ops::Deref,
     str::FromStr,
 };
+use triomphe::Arc;
 
 /// A `SmolStr` is a string type that has the following properties:
 ///
@@ -123,7 +123,7 @@ impl SmolStr {
         let (min_size, _) = iter.size_hint();
         if min_size > INLINE_CAP {
             let heap: String = iter.collect();
-            return SmolStr(Repr::Heap(heap.into_boxed_str().into()));
+            return SmolStr(Repr::Heap(heap.into()));
         }
         let mut len = 0;
         let mut buf = [0u8; INLINE_CAP];
@@ -135,7 +135,7 @@ impl SmolStr {
                 heap.push_str(core::str::from_utf8(&buf[..len]).unwrap());
                 heap.push(ch);
                 heap.extend(iter);
-                return SmolStr(Repr::Heap(heap.into_boxed_str().into()));
+                return SmolStr(Repr::Heap(heap.into()));
             }
             ch.encode_utf8(&mut buf[len..]);
             len += size;
@@ -269,7 +269,7 @@ where
             heap.push_str(core::str::from_utf8(&buf[..len]).unwrap());
             heap.push_str(slice);
             heap.extend(iter);
-            return SmolStr(Repr::Heap(heap.into_boxed_str().into()));
+            return SmolStr(Repr::Heap(heap.into()));
         }
         buf[len..][..size].copy_from_slice(slice.as_bytes());
         len += size;
